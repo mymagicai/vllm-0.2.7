@@ -70,6 +70,8 @@ def initialize_cluster(
         distributed backend. `placement_group` includes the specification
         of the resources for each distributed worker.
     """
+    if ray.is_initialized():
+        ray.shutdown()
     if parallel_config.worker_use_ray or engine_use_ray:
         if ray is None:
             raise ImportError(
