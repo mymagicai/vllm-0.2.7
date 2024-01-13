@@ -77,8 +77,9 @@ def initialize_cluster(
             raise ImportError(
                 "Ray is not installed. Please install Ray to use distributed "
                 "serving.")
+
         # Connect to a ray cluster.
-        if not ray_init:
+        if not ray.is_initialized():
             if is_hip():
                 ray.init(address=ray_address,
                          ignore_reinit_error=True,
@@ -86,11 +87,8 @@ def initialize_cluster(
             else:
                 ray.init(address=ray_address, ignore_reinit_error=True)
             ray_init = True
-
-    if not parallel_config.worker_use_ray:
-        assert parallel_config.world_size == 1, (
-            "Ray is required if parallel_config.world_size > 1.")
-        return None
+        else:
+            logger.info("Ray is already initialized.")
 
     # Create placement group for worker processes
     current_placement_group = ray.util.get_current_placement_group()
